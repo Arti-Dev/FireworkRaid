@@ -169,12 +169,12 @@ public class FireworkQueue implements Listener, CommandExecutor {
         if (!enabledPlayers.containsKey(uuid)) return;
 
         PlayerInventory inventory = player.getInventory();
-        inventory.clear();
         ItemQueue queue = enabledPlayers.get(uuid);
         ItemStack activeItem = queue.getActiveItem();
         ItemStack holdItem = queue.getHoldItem();
         ArrayList<ItemStack> visibleQueue = queue.getVisibleQueue();
 
+        // Process current item and necessary weapons
         if (!activeItem.hasItemMeta()) inventory.setItem(0, activeItem);
         else {
             if (activeItem.getType() == Material.FIREWORK_ROCKET) {
@@ -197,8 +197,12 @@ public class FireworkQueue implements Listener, CommandExecutor {
             } else inventory.setItem(0, activeItem);
         }
 
-        for (int i = 1; i < visibleQueue.size()+1; i++) {
-            inventory.setItem(i, visibleQueue.get(i-1));
+        for (int i = 1; i < 8; i++) {
+            if (i <= visibleQueue.size()) {
+                inventory.setItem(i, visibleQueue.get(i-1));
+            } else {
+                inventory.setItem(i, null);
+            }
         }
         inventory.setItem(8, holdItem);
 

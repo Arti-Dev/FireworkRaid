@@ -11,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Random;
-
 public class ComboCounter {
     private final Player player;
     private int combo = 0;
@@ -171,7 +169,6 @@ public class ComboCounter {
     }
 
     private void spawnNoteParticle() {
-        Random random = new Random();
         player.getWorld().spawnParticle(Particle.NOTE,
                 player.getLocation().add(0, 1, 0), 3, 0.2, 0.2, 0.2);
     }
