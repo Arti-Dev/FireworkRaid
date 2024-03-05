@@ -89,11 +89,14 @@ public class ComboCounter {
         sendActionBar(combo, multiplicity);
     }
 
-    private void resetCombo() {
+    public void resetCombo() {
+        if (combo > 4) {
+            player.playSound(player, Sound.BLOCK_BEACON_DEACTIVATE, 1, 1.5F);
+        }
         combo = 0;
         ticksBetweenCombo = 0;
         resetInactiveTicks();
-        if (!expiryTask.isCancelled()) {
+        if (expiryTask != null && !expiryTask.isCancelled()) {
             expiryTask.cancel();
             expiryTask = null;
         }

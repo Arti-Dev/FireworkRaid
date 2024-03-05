@@ -3,13 +3,16 @@ package com.articreep.fireworkraid.combo;
 import com.articreep.fireworkraid.Utils;
 import com.articreep.fireworkraid.queue.CustomQueueItems;
 import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -53,6 +56,12 @@ public class Combo implements Listener {
             proj.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, proj.getLocation(), 1);
         }
 
+    }
+
+    @EventHandler (priority = EventPriority.HIGH)
+    public void onPlayerDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player player) || event.isCancelled()) return;
+        getComboCounter(player).resetCombo();
     }
 
 

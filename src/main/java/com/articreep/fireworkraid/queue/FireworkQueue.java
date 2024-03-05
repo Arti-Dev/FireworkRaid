@@ -38,10 +38,11 @@ public class FireworkQueue implements Listener, CommandExecutor {
         if (!Utils.isFirework(proj)) return;
         if (!(proj.getShooter() instanceof Player player)) return;
 
+        // disable players being able to hit themselves with their own fireworks
+        if (event.getEntity().equals(player)) event.setCancelled(true);
+
         if (proj.getPersistentDataContainer().has(CustomQueueItems.damageKey)) {
             if (Utils.isFirework(proj)) {
-                // disable players being able to hit themselves with their own fireworks
-                if (event.getEntity().equals(player)) event.setCancelled(true);
                 PersistentDataContainer container = proj.getPersistentDataContainer();
                 double damage = container.get(CustomQueueItems.damageKey, PersistentDataType.DOUBLE);
                 event.setDamage(damage);
@@ -153,11 +154,9 @@ public class FireworkQueue implements Listener, CommandExecutor {
         } else {
             player.sendMessage("Queue enabled");
             ItemQueue queue = new ItemQueue();
-            queue.add(CustomQueueItems.longRangeFirework(2));
-            queue.add(CustomQueueItems.explosiveArrow(2));
-            queue.add(CustomQueueItems.shortRangeFirework(6));
-            queue.add(CustomQueueItems.mediumRangeMultiShot(4));
             enabledPlayers.put(uuid, queue);
+
+            starterItems(player);
             updateInventory(player);
         }
         return true;
@@ -194,7 +193,10 @@ public class FireworkQueue implements Listener, CommandExecutor {
                 bow.addEnchantment(Enchantment.ARROW_FIRE, 1);
                 inventory.setItem(0, bow);
                 inventory.setItemInOffHand(activeItem);
-            } else inventory.setItem(0, activeItem);
+            } else {
+                inventory.setItem(0, activeItem);
+                inventory.setItemInOffHand(null);
+            }
         }
 
         for (int i = 1; i < 8; i++) {
@@ -253,5 +255,19 @@ public class FireworkQueue implements Listener, CommandExecutor {
                 player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
             }
         }
+    }
+
+    private void starterItems(Player player) {
+        ItemQueue queue = enabledPlayers.get(player.getUniqueId());
+        queue.add(CustomQueueItems.longRangeFirework(2));
+        queue.add(CustomQueueItems.explosiveArrow(2));
+        queue.add(CustomQueueItems.shortRangeFirework(6));
+        queue.add(CustomQueueItems.mediumRangeMultiShot(4));
+        PlayerInventory inventory = player.getInventory();
+        inventory.setHelmet(new ItemStack(Material.TURTLE_HELMET));
+        inventory.setChestplate(new ItemStack(Material.CHAINMAIL_CHESTPLATE));
+        inventory.setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
+        inventory.setBoots(new ItemStack(Material.IRON_BOOTS));
+        updateInventory(player);
     }
 }
