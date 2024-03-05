@@ -3,6 +3,7 @@ package com.articreep.fireworkraid.combo;
 import com.articreep.fireworkraid.Utils;
 import com.articreep.fireworkraid.queue.CustomQueueItems;
 import com.articreep.fireworkraid.queue.FireworkQueue;
+import com.articreep.fireworkraid.raid.RaidScoreboard;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -92,6 +93,7 @@ public class Combo implements Listener {
         if (counter.getCombo() % 7 == 0 && FireworkQueue.isFireworking(player)) {
             FireworkQueue.addRandomItems(player, 1);
         }
+        RaidScoreboard.updateScore(player, counter.getScore());
     }
 
 

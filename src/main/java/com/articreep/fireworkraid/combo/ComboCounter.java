@@ -14,6 +14,7 @@ import org.bukkit.scheduler.BukkitTask;
 public class ComboCounter {
     private final Player player;
     private int combo = 0;
+    private int score = 0;
     private int multiplicity = 1;
     /** Ticks since last combo increase */
     private int inactiveTicks = 0;
@@ -78,6 +79,7 @@ public class ComboCounter {
 
         incrementedThisTick = true;
         Bukkit.getScheduler().runTask(FireworkRaid.getInstance(), () -> {
+            incrementScore(combo, multiplicity, rhythmCombo);
             incrementedThisTick = false;
             multiplicity = 1;
         });
@@ -87,6 +89,18 @@ public class ComboCounter {
         multiplicity += 1;
         if (multiplicity >= 4 && combo >= 4) currentSound.extra = true;
         sendActionBar(combo, multiplicity);
+    }
+
+    public void manuallyIncrementScore(int amount) {
+        score += amount;
+    }
+
+    private void incrementScore(int combo, int multiplicity, int rhythmCombo) {
+        // todo very subject to change
+        int amount = combo;
+        amount *= multiplicity;
+        amount *= (int) Math.sqrt(rhythmCombo);
+        score += combo;
     }
 
     public void resetCombo() {
@@ -178,5 +192,13 @@ public class ComboCounter {
 
     public int getCombo() {
         return combo;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void resetScore() {
+        score = 0;
     }
 }

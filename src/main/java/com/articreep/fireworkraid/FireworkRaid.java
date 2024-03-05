@@ -1,7 +1,8 @@
 package com.articreep.fireworkraid;
 
 import com.articreep.fireworkraid.combo.Combo;
-import com.articreep.fireworkraid.enemies.Raids;
+import com.articreep.fireworkraid.raid.RaidScoreboard;
+import com.articreep.fireworkraid.raid.Raids;
 import com.articreep.fireworkraid.queue.FireworkQueue;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,12 +17,13 @@ public final class FireworkRaid extends JavaPlugin {
         getServer().getPluginManager().registerEvents(queue, this);
         getCommand("fireworkraid").setExecutor(queue);
         getServer().getPluginManager().registerEvents(new Raids(), this);
+        RaidScoreboard.initScoreboard();
 
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        RaidScoreboard.resetScoreboard();
     }
 
     public static FireworkRaid getInstance() {
