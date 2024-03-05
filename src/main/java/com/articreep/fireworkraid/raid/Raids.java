@@ -52,5 +52,7 @@ public class Raids implements Listener {
         }
     }
 
+    // todo make iron golems ignore you
+
 
 }

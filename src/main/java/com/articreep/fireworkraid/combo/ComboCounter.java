@@ -79,6 +79,7 @@ public class ComboCounter {
 
         incrementedThisTick = true;
         Bukkit.getScheduler().runTask(FireworkRaid.getInstance(), () -> {
+            // todo this is causing desyncs between the scoreboard and actual value
             incrementScore(combo, multiplicity, rhythmCombo);
             incrementedThisTick = false;
             multiplicity = 1;
@@ -99,7 +100,7 @@ public class ComboCounter {
         // todo very subject to change
         int amount = combo;
         amount *= multiplicity;
-        amount *= (int) Math.sqrt(rhythmCombo);
+        amount *= Math.max(1, (int) Math.sqrt(rhythmCombo));
         score += amount;
     }
 

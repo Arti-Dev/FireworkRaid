@@ -119,6 +119,7 @@ public class FireworkQueue implements Listener, CommandExecutor {
                 player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
             }
         }
+        // todo extend this to arrow entity pickups since they clutter the inventory
     }
 
     @Override
