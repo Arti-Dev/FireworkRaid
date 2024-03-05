@@ -1,6 +1,7 @@
 package com.articreep.fireworkraid;
 
 import com.articreep.fireworkraid.combo.Combo;
+import com.articreep.fireworkraid.enemies.Raids;
 import com.articreep.fireworkraid.queue.FireworkQueue;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,6 +15,7 @@ public final class FireworkRaid extends JavaPlugin {
         FireworkQueue queue = new FireworkQueue();
         getServer().getPluginManager().registerEvents(queue, this);
         getCommand("fireworkraid").setExecutor(queue);
+        getServer().getPluginManager().registerEvents(new Raids(), this);
 
     }
 

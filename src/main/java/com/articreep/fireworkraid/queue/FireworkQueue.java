@@ -20,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -125,18 +127,14 @@ public class FireworkQueue implements Listener, CommandExecutor {
         UUID uuid = player.getUniqueId();
         // if the player's inventory isn't empty and they're not enabled
         if (!player.getInventory().isEmpty() && !enabledPlayers.containsKey(uuid)) {
-            player.sendMessage(ChatColor.RED + "Your inventory needs to be empty in order to turn this on!");
-        } else if (enabledPlayers.containsKey(uuid)) {
+            player.sendMessage(ChatColor.RED + "Your inventory needs to be empty in order to start a raid!");
+        } else if (!enabledPlayers.containsKey(uuid)) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.BAD_OMEN, Integer.MAX_VALUE, 3));
+            player.sendMessage(ChatColor.GREEN + "Gave you Bad Omen III!");
+        } else {
             player.sendMessage("Queue disabled");
             enabledPlayers.remove(uuid);
             player.getInventory().clear();
-        } else {
-            player.sendMessage("Queue enabled");
-            ItemQueue queue = new ItemQueue();
-            enabledPlayers.put(uuid, queue);
-
-            starterItems(player);
-            updateInventory(player);
         }
         return true;
     }
@@ -247,7 +245,7 @@ public class FireworkQueue implements Listener, CommandExecutor {
         }
     }
 
-    private void starterItems(Player player) {
+    private static void starterItems(Player player) {
         ItemQueue queue = enabledPlayers.get(player.getUniqueId());
         queue.add(CustomQueueItems.longRangeFirework(2));
         queue.add(CustomQueueItems.explosiveArrow(2));
@@ -280,5 +278,21 @@ public class FireworkQueue implements Listener, CommandExecutor {
     public static boolean isFireworking(Player player) {
         // awesome name
         return enabledPlayers.containsKey(player.getUniqueId());
+    }
+
+    public static void toggleQueue(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (enabledPlayers.containsKey(uuid)) {
+            player.sendMessage("Queue disabled");
+            enabledPlayers.remove(uuid);
+            player.getInventory().clear();
+        } else {
+            player.sendMessage("Queue enabled");
+            ItemQueue queue = new ItemQueue();
+            enabledPlayers.put(uuid, queue);
+
+            starterItems(player);
+            updateInventory(player);
+        }
     }
 }
