@@ -2,6 +2,7 @@ package com.articreep.fireworkraid.combo;
 
 import com.articreep.fireworkraid.Utils;
 import com.articreep.fireworkraid.queue.CustomQueueItems;
+import com.articreep.fireworkraid.queue.FireworkQueue;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -27,7 +28,7 @@ public class Combo implements Listener {
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)) return;
-        getComboCounter(player).incrementCombo();
+        incrementCombo(player);
     }
 
     @EventHandler
@@ -35,7 +36,8 @@ public class Combo implements Listener {
         if (!(event.getDamager() instanceof Projectile proj)) return;
         if (!Utils.isFirework(proj)) return;
         if (!(proj.getShooter() instanceof Player player)) return;
-        getComboCounter(player).incrementCombo();
+        incrementCombo(player);
+
     }
 
     @EventHandler
@@ -51,7 +53,7 @@ public class Combo implements Listener {
             List<Entity> entities = proj.getNearbyEntities(radius, radius, radius);
             for (Entity entity : entities) {
                 if (entity instanceof LivingEntity && !entity.equals(player)) ((LivingEntity) entity).damage(damage);
-                getComboCounter(player).incrementCombo();
+                incrementCombo(player);
             }
             proj.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, proj.getLocation(), 1);
         }
@@ -82,6 +84,14 @@ public class Combo implements Listener {
     public static ComboCounter getComboCounter(Player player) {
         if (!hasRegisteredCombo(player)) registerCombo(player);
         return comboMap.get(player);
+    }
+
+    private void incrementCombo(Player player) {
+        ComboCounter counter = getComboCounter(player);
+        counter.incrementCombo();
+        if (counter.getCombo() % 7 == 0 && FireworkQueue.isFireworking(player)) {
+            FireworkQueue.addRandomItems(player, 1);
+        }
     }
 
 

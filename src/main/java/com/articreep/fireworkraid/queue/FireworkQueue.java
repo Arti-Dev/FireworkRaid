@@ -47,17 +47,6 @@ public class FireworkQueue implements Listener, CommandExecutor {
                 double damage = container.get(CustomQueueItems.damageKey, PersistentDataType.DOUBLE);
                 event.setDamage(damage);
 
-                Random random = new Random();
-                ItemStack item;
-                item = switch (random.nextInt(4)) {
-                    case 0 -> CustomQueueItems.longRangeFirework(1);
-                    case 1 -> CustomQueueItems.explosiveArrow(1);
-                    case 2 -> CustomQueueItems.shortRangeFirework(3);
-                    case 3 -> CustomQueueItems.mediumRangeMultiShot(4);
-                    default -> CustomQueueItems.shortRangeFirework(1);
-                };
-                addToQueue(player, item);
-
             }
         }
     }
@@ -105,39 +94,29 @@ public class FireworkQueue implements Listener, CommandExecutor {
             event.getPlayer().getInventory().setHeldItemSlot(0);
         }
     }
-    public void onItemChange(Player player, ItemStack activeItem) {
-        if (activeItem.getType() == Material.FIREWORK_ROCKET) {
-            if (!activeIndicators.containsKey(player.getUniqueId())) {
-                activeIndicators.put(player.getUniqueId(), drawIndicator(player));
-            }
-        } else if (activeIndicators.containsKey(player.getUniqueId())) {
-            activeIndicators.get(player.getUniqueId()).cancel();
-            activeIndicators.remove(player.getUniqueId());
-        }
-    }
-
-    private BukkitTask drawIndicator(Player player) {
-        return new BukkitRunnable() {
-            BlockDisplay display;
-            @Override
-            public void run() {
-                ItemQueue queue = enabledPlayers.get(player.getUniqueId());
-                if (queue == null) return;
-                ItemStack item = queue.getActiveItem();
-                PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
-                int range = container.getOrDefault(CustomQueueItems.rangeKey, PersistentDataType.INTEGER, 20);
-                double actualRange = 1.58 * range + 1.9;
-                Vector v = player.getLocation().getDirection().multiply(actualRange);
-                Location indicatorLoc = player.getLocation().add(v).add(0, 1.8, 0);
-                player.getWorld().spawnParticle(Particle.HEART, indicatorLoc, 1);
-            }
-        }.runTaskTimer(FireworkRaid.getInstance(), 0, 1);
-    }
 
     @EventHandler
     public void onDC(PlayerQuitEvent event) {
         enabledPlayers.remove(event.getPlayer().getUniqueId());
         activeIndicators.remove(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
+    public void onPlayerDrop(PlayerDropItemEvent event) {
+        consumeItem(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerPickup(EntityPickupItemEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            UUID uuid = player.getUniqueId();
+            if (enabledPlayers.containsKey(uuid)) {
+                event.setCancelled(true);
+                event.getItem().remove();
+//                addToQueue(player, event.getItem().getItemStack());
+                player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
+            }
+        }
     }
 
     @Override
@@ -163,7 +142,7 @@ public class FireworkQueue implements Listener, CommandExecutor {
     }
 
     /** Updates the player's inventory to match the queue state **/
-    private void updateInventory(Player player) {
+    private static void updateInventory(Player player) {
         UUID uuid = player.getUniqueId();
         if (!enabledPlayers.containsKey(uuid)) return;
 
@@ -211,7 +190,36 @@ public class FireworkQueue implements Listener, CommandExecutor {
         onItemChange(player, activeItem);
     }
 
-    private void addToQueue(Player player, ItemStack item) {
+    public static void onItemChange(Player player, ItemStack activeItem) {
+        if (activeItem.getType() == Material.FIREWORK_ROCKET) {
+            if (!activeIndicators.containsKey(player.getUniqueId())) {
+                activeIndicators.put(player.getUniqueId(), drawIndicator(player));
+            }
+        } else if (activeIndicators.containsKey(player.getUniqueId())) {
+            activeIndicators.get(player.getUniqueId()).cancel();
+            activeIndicators.remove(player.getUniqueId());
+        }
+    }
+
+    private static BukkitTask drawIndicator(Player player) {
+        return new BukkitRunnable() {
+            BlockDisplay display;
+            @Override
+            public void run() {
+                ItemQueue queue = enabledPlayers.get(player.getUniqueId());
+                if (queue == null) return;
+                ItemStack item = queue.getActiveItem();
+                PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
+                int range = container.getOrDefault(CustomQueueItems.rangeKey, PersistentDataType.INTEGER, 20);
+                double actualRange = 1.58 * range + 1.9;
+                Vector v = player.getLocation().getDirection().multiply(actualRange);
+                Location indicatorLoc = player.getLocation().add(v).add(0, 1.8, 0);
+                player.getWorld().spawnParticle(Particle.HEART, indicatorLoc, 1);
+            }
+        }.runTaskTimer(FireworkRaid.getInstance(), 0, 1);
+    }
+
+    private static void addToQueue(Player player, ItemStack item) {
         UUID uuid = player.getUniqueId();
         if (enabledPlayers.containsKey(uuid)) {
             ItemQueue queue = enabledPlayers.get(uuid);
@@ -239,24 +247,6 @@ public class FireworkQueue implements Listener, CommandExecutor {
         }
     }
 
-    @EventHandler
-    public void onPlayerDrop(PlayerDropItemEvent event) {
-        consumeItem(event.getPlayer());
-    }
-
-    @EventHandler
-    public void onPlayerPickup(EntityPickupItemEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            UUID uuid = player.getUniqueId();
-            if (enabledPlayers.containsKey(uuid)) {
-                event.setCancelled(true);
-                event.getItem().remove();
-//                addToQueue(player, event.getItem().getItemStack());
-                player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
-            }
-        }
-    }
-
     private void starterItems(Player player) {
         ItemQueue queue = enabledPlayers.get(player.getUniqueId());
         queue.add(CustomQueueItems.longRangeFirework(2));
@@ -269,5 +259,26 @@ public class FireworkQueue implements Listener, CommandExecutor {
         inventory.setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
         inventory.setBoots(new ItemStack(Material.IRON_BOOTS));
         updateInventory(player);
+    }
+
+    public static void addRandomItems(Player player, int amount) {
+        Random random = new Random();
+        for (int i = 0; i < amount; i++) {
+            ItemStack item;
+            item = switch (random.nextInt(4)) {
+                case 0 -> CustomQueueItems.longRangeFirework(1);
+                case 1 -> CustomQueueItems.explosiveArrow(1);
+                case 2 -> CustomQueueItems.shortRangeFirework(3);
+                case 3 -> CustomQueueItems.mediumRangeMultiShot(4);
+                default -> CustomQueueItems.shortRangeFirework(1);
+            };
+            addToQueue(player, item);
+            player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
+        }
+    }
+
+    public static boolean isFireworking(Player player) {
+        // awesome name
+        return enabledPlayers.containsKey(player.getUniqueId());
     }
 }
