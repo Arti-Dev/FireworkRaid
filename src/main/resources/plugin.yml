@@ -1,0 +1,8 @@
+name: FireworkRaid
+version: '${project.version}'
+main: com.articreep.fireworkraid.FireworkRaid
+api-version: '1.20'
+commands:
+  fireworkraid:
+    description: 'testing for now'
+    usage: '/fireworkqueue'
