@@ -5,18 +5,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 public class RaidScoreboard {
-    private static ScoreboardManager manager;
     private static Scoreboard board;
     private static Objective objective;
     public static void initScoreboard() {
         // todo could be null
-        manager = Bukkit.getScoreboardManager();
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
         board = manager.getNewScoreboard();
         objective = board.registerNewObjective("Score", Criteria.DUMMY, "Score");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
     }
 
-    public static void updateScore(Player player, int score) {;
+    public static void updateScore(Player player, int score) {
         objective.getScore(player.getName()).setScore(score);
     }
 

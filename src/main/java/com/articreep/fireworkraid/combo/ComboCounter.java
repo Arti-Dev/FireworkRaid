@@ -100,7 +100,7 @@ public class ComboCounter {
         int amount = combo;
         amount *= multiplicity;
         amount *= (int) Math.sqrt(rhythmCombo);
-        score += combo;
+        score += amount;
     }
 
     public void resetCombo() {
