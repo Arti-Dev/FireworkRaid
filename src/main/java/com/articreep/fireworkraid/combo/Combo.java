@@ -48,6 +48,7 @@ public class Combo implements Listener {
             List<Entity> entities = proj.getNearbyEntities(radius, radius, radius);
             for (Entity entity : entities) {
                 if (entity instanceof LivingEntity && !entity.equals(player)) ((LivingEntity) entity).damage(damage);
+                getComboCounter(player).incrementCombo();
             }
             proj.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, proj.getLocation(), 1);
         }
