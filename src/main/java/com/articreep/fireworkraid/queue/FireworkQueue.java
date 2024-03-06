@@ -242,6 +242,12 @@ public class FireworkQueue implements Listener, CommandExecutor {
                 String name = queue.getActiveItem().getItemMeta().getDisplayName();
                 player.sendTitle(name, "", 0, 1, 19);
                 updateInventory(player);
+            } else {
+                if (queue.getActiveItem().getAmount() < 3) {
+                    player.sendTitle("",
+                            ChatColor.GRAY + "" + queue.getActiveItem().getAmount() + "left!",
+                            0, 1, 19);
+                }
             }
         }
     }
@@ -265,15 +271,16 @@ public class FireworkQueue implements Listener, CommandExecutor {
         for (int i = 0; i < amount; i++) {
             ItemStack item;
             item = switch (random.nextInt(4)) {
-                case 0 -> CustomQueueItems.longRangeFirework(1);
+                case 0 -> CustomQueueItems.longRangeFirework(2);
                 case 1 -> CustomQueueItems.explosiveArrow(1);
-                case 2 -> CustomQueueItems.shortRangeFirework(3);
+                case 2 -> CustomQueueItems.shortRangeFirework(6);
                 case 3 -> CustomQueueItems.mediumRangeMultiShot(4);
                 default -> CustomQueueItems.shortRangeFirework(1);
             };
             addToQueue(player, item);
             player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
         }
+        player.sendMessage(ChatColor.DARK_GRAY + "+" + amount + " items!");
     }
 
     public static boolean isFireworking(Player player) {
