@@ -89,6 +89,7 @@ public class Combo implements Listener {
         ComboCounter counter = getComboCounter(player);
         counter.incrementCombo();
         if (counter.getCombo() % 7 == 0 && FireworkQueue.isFireworking(player)) {
+            // todo bug: this actually adds extra items if you trigger a combo with a 2+ multiplicity
             FireworkQueue.addRandomItems(player, 1);
         }
         RaidScoreboard.updateScore(player, counter.getScore());

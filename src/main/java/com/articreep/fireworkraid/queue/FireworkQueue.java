@@ -245,7 +245,7 @@ public class FireworkQueue implements Listener, CommandExecutor {
             } else {
                 if (queue.getActiveItem().getAmount() < 3) {
                     player.sendTitle("",
-                            ChatColor.GRAY + "" + queue.getActiveItem().getAmount() + "left!",
+                            ChatColor.GRAY + "" + queue.getActiveItem().getAmount() + " left!",
                             0, 1, 19);
                 }
             }
